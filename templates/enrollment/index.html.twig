@@ -5,9 +5,64 @@
 {% block body %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="bi bi-journal-check"></i> Enrollments</h1>
-    <a href="{{ path('enrollment_new') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> New Enrollment
-    </a>
+    <div class="btn-group">
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('enrollment_bulk_new') }}" class="btn btn-success">
+            <i class="bi bi-people-fill"></i> Bulk Enrollment
+        </a>
+        {% endif %}
+        <a href="{{ path('enrollment_new') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Enrollment
+        </a>
+    </div>
+</div>
+
+{# Filter Form #}
+<div class="card shadow-sm mb-4 border-0 bg-light">
+    <div class="card-body">
+        <form method="get" action="{{ path('enrollment_index') }}" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted">Student Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
+                    <input type="text" name="student" class="form-control border-start-0" placeholder="Search student..." value="{{ filters.student }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Course</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-book"></i></span>
+                    <select name="course" class="form-select border-start-0">
+                        <option value="">All Courses</option>
+                        {% for course in courses %}
+                            <option value="{{ course.id }}" {% if filters.course == course.id %}selected{% endif %}>
+                                {{ course.code }} - {{ course.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="completed" {% if filters.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="dropped" {% if filters.status == 'dropped' %}selected{% endif %}>Dropped</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="btn-group w-100">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> Filter
+                    </button>
+                    <a href="{{ path('enrollment_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% if enrollments is empty %}
@@ -19,11 +74,31 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Student</th>
-                            <th>Course</th>
-                            <th>Enrolled Date</th>
-                            <th>Grade</th>
-                            <th>Status</th>
+                            <th>
+                                <a href="{{ path('enrollment_index', filters|merge({sort: 's.firstName', direction: filters.sort == 's.firstName' and filters.direction == 'ASC' ? 'DESC' : 'ASC'})) }}" class="text-dark text-decoration-none">
+                                    Student {% if filters.sort == 's.firstName' %}<i class="bi bi-caret-{{ filters.direction == 'ASC' ? 'up' : 'down' }}-fill"></i>{% else %}<i class="bi bi-caret-down opacity-25"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ path('enrollment_index', filters|merge({sort: 'c.name', direction: filters.sort == 'c.name' and filters.direction == 'ASC' ? 'DESC' : 'ASC'})) }}" class="text-dark text-decoration-none">
+                                    Course {% if filters.sort == 'c.name' %}<i class="bi bi-caret-{{ filters.direction == 'ASC' ? 'up' : 'down' }}-fill"></i>{% else %}<i class="bi bi-caret-down opacity-25"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ path('enrollment_index', filters|merge({sort: 'e.enrolledAt', direction: filters.sort == 'e.enrolledAt' and filters.direction == 'ASC' ? 'DESC' : 'ASC'})) }}" class="text-dark text-decoration-none">
+                                    Enrolled Date {% if filters.sort == 'e.enrolledAt' %}<i class="bi bi-caret-{{ filters.direction == 'ASC' ? 'up' : 'down' }}-fill"></i>{% else %}<i class="bi bi-caret-down opacity-25"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ path('enrollment_index', filters|merge({sort: 'e.grade', direction: filters.sort == 'e.grade' and filters.direction == 'ASC' ? 'DESC' : 'ASC'})) }}" class="text-dark text-decoration-none">
+                                    Grade {% if filters.sort == 'e.grade' %}<i class="bi bi-caret-{{ filters.direction == 'ASC' ? 'up' : 'down' }}-fill"></i>{% else %}<i class="bi bi-caret-down opacity-25"></i>{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ path('enrollment_index', filters|merge({sort: 'e.status', direction: filters.sort == 'e.status' and filters.direction == 'ASC' ? 'DESC' : 'ASC'})) }}" class="text-dark text-decoration-none">
+                                    Status {% if filters.sort == 'e.status' %}<i class="bi bi-caret-{{ filters.direction == 'ASC' ? 'up' : 'down' }}-fill"></i>{% else %}<i class="bi bi-caret-down opacity-25"></i>{% endif %}
+                                </a>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>

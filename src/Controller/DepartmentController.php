@@ -53,6 +53,7 @@ class DepartmentController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'department_edit', methods: ['GET', 'POST'])]
+    #[\Symfony\Component\Security\Http\Attribute\IsGranted('ROLE_ADMIN')]
     public function edit(Request $request, Department $department, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(DepartmentType::class, $department);
@@ -73,6 +74,7 @@ class DepartmentController extends AbstractController
     }
 
     #[Route('/{id}', name: 'department_delete', methods: ['POST'])]
+    #[\Symfony\Component\Security\Http\Attribute\IsGranted('ROLE_ADMIN')]
     public function delete(Request $request, Department $department, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$department->getId(), $request->request->get('_token'))) {

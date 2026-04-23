@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bulk Enrollment - Student Management System{% endblock %}
+
+{% block body %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('home') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('enrollment_index') }}">Enrollments</a></li>
+        <li class="breadcrumb-item active">Bulk Enrollment</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-people-fill"></i> Bulk Course Enrollment</h4>
+            </div>
+            <div class="card-body p-4">
+                {{ form_start(form) }}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-3"><i class="bi bi-book"></i> 1. Select Course</h5>
+                                    {{ form_row(form.course) }}
+                                    <div class="form-text">Choose the course where you want to add students.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info py-2">
+                                <i class="bi bi-info-circle"></i> 
+                                <small>Only students not already enrolled in the selected course will be added.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-none bg-light">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-person-check"></i> 2. Select Students</h5>
+                            
+                            <div class="student-selection-grid p-3 bg-white rounded border" style="max-height: 400px; overflow-y: auto;">
+                                <div class="row g-3">
+                                    {% for child in form.students %}
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="form-check p-2 rounded hover-bg-light border-bottom">
+                                                {{ form_widget(child, {'attr': {'class': 'form-check-input ms-0 me-2'}}) }}
+                                                {{ form_label(child, null, {'label_attr': {'class': 'form-check-label small'}}) }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mt-2 text-muted small">
+                                <i class="bi bi-search"></i> Tip: Use Ctrl+F to find a specific student name.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <a href="{{ path('enrollment_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg px-5">
+                            <i class="bi bi-check-circle"></i> Enroll Selected Students
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-bg-light:hover {
+        background-color: #f8f9fa;
+    }
+    .student-selection-grid .form-check {
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+</style>
+{% endblock %}

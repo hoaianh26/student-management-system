@@ -42,10 +42,15 @@
                         </span>
                     </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <a href="{{ path('department_show', {id: department.id}) }}" class="btn btn-sm btn-outline-success w-100">
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <a href="{{ path('department_show', {id: department.id}) }}" class="btn btn-sm btn-outline-success flex-grow-1">
                         <i class="bi bi-eye"></i> View Details
                     </a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('department_edit', {id: department.id}) }}" class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

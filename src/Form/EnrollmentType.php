@@ -22,13 +22,21 @@ class EnrollmentType extends AbstractType
                 'class' => Student::class,
                 'choice_label' => 'fullName',
                 'placeholder' => 'Select Student',
-                'attr' => ['class' => 'form-select']
+                'query_builder' => function (\App\Repository\StudentRepository $sr) {
+                    return $sr->createQueryBuilder('s')
+                        ->orderBy('s.firstName', 'ASC');
+                },
+                'attr' => ['class' => 'form-select select2']
             ])
             ->add('course', EntityType::class, [
                 'class' => Course::class,
                 'choice_label' => 'name',
                 'placeholder' => 'Select Course',
-                'attr' => ['class' => 'form-select']
+                'query_builder' => function (\App\Repository\CourseRepository $cr) {
+                    return $cr->createQueryBuilder('c')
+                        ->orderBy('c.name', 'ASC');
+                },
+                'attr' => ['class' => 'form-select select2']
             ])
             ->add('enrolledAt', DateType::class, [
                 'widget' => 'single_text',

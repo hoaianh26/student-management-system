@@ -7,10 +7,12 @@
             {{ form_row(form.code, {'attr': {'class': 'form-control', 'placeholder': 'CS101'}}) }}
         </div>
         <div class="col-md-3 mb-3">
-            {{ form_row(form.credits, {'attr': {'class': 'form-control'}}) }}
+            {{ form_row(form.credits, {'attr': {'class': 'form-control', 'min': 1, 'max': 10}}) }}
+            <div class="form-text small text-muted">Range: 1 to 10 credits</div>
         </div>
         <div class="col-md-12 mb-3">
-            {{ form_row(form.department, {'attr': {'class': 'form-select'}}) }}
+            {# Thêm class select2 vào ô chọn department #}
+            {{ form_row(form.department, {'attr': {'class': 'form-select select2', 'data-placeholder': 'Select Department'}}) }}
         </div>
         <div class="col-12 mb-3">
             {{ form_row(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
@@ -23,3 +25,19 @@
         </button>
     </div>
 {{ form_end(form) }}
+
+<script>
+    // Đảm bảo jQuery và Select2 đã sẵn sàng trước khi chạy
+    (function checkSelect2() {
+        if (window.jQuery && jQuery.fn.select2) {
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Type to search...',
+                allowClear: true
+            });
+        } else {
+            setTimeout(checkSelect2, 50);
+        }
+    })();
+</script>

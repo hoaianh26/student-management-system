@@ -6,7 +6,14 @@ use App\Repository\EnrollmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 #[ORM\Entity(repositoryClass: EnrollmentRepository::class)]
+#[ORM\UniqueConstraint(name: 'unique_enrollment', fields: ['student', 'course'])]
+#[UniqueEntity(
+    fields: ['student', 'course'],
+    message: 'This student is already enrolled in this course.'
+)]
 class Enrollment
 {
     public const STATUS_ACTIVE    = 'active';

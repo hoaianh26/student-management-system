@@ -29,6 +29,41 @@ class EnrollmentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function searchByCriteria(?string $studentName, ?int $courseId, ?string $status, string $sort = 'e.enrolledAt', string $direction = 'DESC'): array
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->leftJoin('e.student', 's')
+            ->leftJoin('e.course', 'c')
+            ->addSelect('s', 'c');
+
+        if ($studentName) {
+            $qb->andWhere('s.firstName LIKE :name OR s.lastName LIKE :name OR s.email LIKE :name')
+               ->setParameter('name', '%' . $studentName . '%');
+        }
+
+        if ($courseId) {
+            $qb->andWhere('c.id = :courseId')
+               ->setParameter('courseId', $courseId);
+        }
+
+        if ($status) {
+            $qb->andWhere('e.status = :status')
+               ->setParameter('status', $status);
+        }
+
+        // Đảm bảo tham số sort là hợp lệ để tránh SQL Injection
+        $validSorts = ['s.firstName', 'c.name', 'e.enrolledAt', 'e.grade', 'e.status'];
+        if (!in_array($sort, $validSorts)) {
+            $sort = 'e.enrolledAt';
+        }
+
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+        return $qb->orderBy($sort, $direction)
+            ->getQuery()
+            ->getResult();
+    }
+
     // 📗 All enrollments for one course
     public function findByCourse(int $courseId): array
     {

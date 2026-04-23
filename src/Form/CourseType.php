@@ -21,6 +21,7 @@ class CourseType extends AbstractType
             ->add('department', EntityType::class, [
                 'class' => Department::class,
                 'choice_label' => 'name',
+                'attr' => ['class' => 'form-select select2']
             ])
         ;
     }

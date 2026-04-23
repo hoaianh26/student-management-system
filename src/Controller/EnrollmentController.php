@@ -15,10 +15,32 @@ use Symfony\Component\Routing\Annotation\Route;
 class EnrollmentController extends AbstractController
 {
     #[Route('/', name: 'enrollment_index', methods: ['GET'])]
-    public function index(EnrollmentRepository $enrollmentRepository): Response
+    public function index(Request $request, EnrollmentRepository $enrollmentRepository, \App\Repository\CourseRepository $courseRepository): Response
     {
+        $studentName = $request->query->get('student');
+        $courseId = $request->query->get('course');
+        $status = $request->query->get('status');
+        $sort = $request->query->get('sort', 'e.enrolledAt');
+        $direction = $request->query->get('direction', 'DESC');
+
+        $enrollments = $enrollmentRepository->searchByCriteria(
+            $studentName,
+            $courseId ? (int) $courseId : null,
+            $status,
+            $sort,
+            $direction
+        );
+
         return $this->render('enrollment/index.html.twig', [
-            'enrollments' => $enrollmentRepository->findAll(),
+            'enrollments' => $enrollments,
+            'courses' => $courseRepository->findAll(),
+            'filters' => [
+                'student' => $studentName,
+                'course' => $courseId,
+                'status' => $status,
+                'sort' => $sort,
+                'direction' => $direction,
+            ]
         ]);
     }
 
@@ -26,13 +48,6 @@ class EnrollmentController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $enrollment = new Enrollment();
-        
-        // Default values if passed via query params (e.g. from student profile)
-        $studentId = $request->query->get('student');
-        if ($studentId) {
-            // ... load student and set to enrollment if needed
-        }
-
         $form = $this->createForm(EnrollmentType::class, $enrollment);
         $form->handleRequest($request);
 
@@ -47,6 +62,51 @@ class EnrollmentController extends AbstractController
 
         return $this->render('enrollment/new.html.twig', [
             'enrollment' => $enrollment,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/bulk-new', name: 'enrollment_bulk_new', methods: ['GET', 'POST'])]
+    #[is_granted('ROLE_ADMIN')]
+    public function bulkNew(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(\App\Form\BulkEnrollmentType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $course = $data['course'];
+            $students = $data['students'];
+            $count = 0;
+
+            foreach ($students as $student) {
+                // Check if already enrolled to avoid duplicates
+                $existing = $entityManager->getRepository(Enrollment::class)->findOneBy([
+                    'student' => $student,
+                    'course' => $course
+                ]);
+
+                if (!$existing) {
+                    $enrollment = new Enrollment();
+                    $enrollment->setCourse($course);
+                    $enrollment->setStudent($student);
+                    $entityManager->persist($enrollment);
+                    $count++;
+                }
+            }
+
+            $entityManager->flush();
+
+            if ($count > 0) {
+                $this->addFlash('success', sprintf('Successfully enrolled %d students in %s.', $count, $course->getName()));
+            } else {
+                $this->addFlash('warning', 'No new enrollments were created (students might already be enrolled).');
+            }
+
+            return $this->redirectToRoute('enrollment_index');
+        }
+
+        return $this->render('enrollment/bulk_new.html.twig', [
             'form' => $form,
         ]);
     }

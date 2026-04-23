@@ -2,6 +2,26 @@
 
 {% block title %}New Enrollment{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Ẩn triệt để tất cả các dòng/danh sách báo lỗi tĩnh của Symfony/Bootstrap */
+        .invalid-feedback, 
+        .alert-danger, 
+        .alert-error,
+        form ul, 
+        .form-error-icon,
+        .form-error-message {
+            display: none !important;
+        }
+        /* Giữ lại viền đỏ cho ô nhập liệu bị lỗi để người dùng dễ nhận biết */
+        .is-invalid, .has-error input, .has-error select {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.25 margin-rgba(220, 53, 69, 0.25) !important;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
 <div class="card shadow-sm border-0">
     <div class="card-header bg-primary py-3 text-white">
@@ -33,4 +53,48 @@
         {{ form_end(form) }}
     </div>
 </div>
+
+{# Bootstrap Modal dành cho thông báo lỗi #}
+{% if not form.vars.valid %}
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel"><i class="bi bi-exclamation-triangle"></i> Enrollment Error</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <div class="text-center">
+                    <p class="mb-3">Please correct the following errors:</p>
+                    <ul class="list-unstyled">
+                        {# Hiển thị lỗi tổng quát của form #}
+                        {% for error in form.vars.errors %}
+                            <li class="fw-bold text-danger mb-2">{{ error.message }}</li>
+                        {% endfor %}
+                        {# Hiển thị lỗi của từng trường #}
+                        {% for child in form.children %}
+                            {% for error in child.vars.errors %}
+                                <li class="fw-bold text-danger mb-2">{{ error.message }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var myModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        myModal.show();
+    });
+</script>
+{% endif %}
 {% endblock %}
