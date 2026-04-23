@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Department: {{ department.name }}{% endblock %}
+
+{% block body %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ path('department_index') }}">Departments</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Edit: {{ department.code }}</li>
+  </ol>
+</nav>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-success text-white py-3">
+        <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Department: {{ department.name }}</h4>
+    </div>
+    <div class="card-body p-4">
+        {{ include('department/_form.html.twig') }}
+        
+        <div class="mt-4 pt-3 border-top">
+            <h5 class="text-danger">Danger Zone</h5>
+            <p class="text-muted small">Once deleted, a department cannot be recovered if it has no related data.</p>
+            {{ include('department/_delete_form.html.twig') }}
+        </div>
+    </div>
+</div>
+{% endblock %}

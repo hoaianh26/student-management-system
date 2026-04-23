@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}All Students - Student Management System{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-people-fill"></i> Students</h1>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('student_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add New Student
+    </a>
+    {% endif %}
+</div>
+
+{# Search and Filter Form #}
+<div class="card shadow-sm mb-4 border-0 bg-light">
+    <div class="card-body">
+        <form method="get" action="{{ path('student_index') }}" class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control border-start-0" placeholder="Search by name..." value="{{ search_term }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-building"></i></span>
+                    <select name="department" class="form-select border-start-0">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if current_department == dept.id %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 d-grid">
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> Apply
+                    </button>
+                    <a href="{{ path('student_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if students is empty %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No students found matching your criteria.
+    </div>
+{% else %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Date of Birth</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ student.id }}</span></td>
+                            <td>
+                                <strong>{{ student.firstName }} {{ student.lastName }}</strong>
+                            </td>
+                            <td>
+                                <a href="mailto:{{ student.email }}" class="text-decoration-none">
+                                    <i class="bi bi-envelope"></i> {{ student.email }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if student.department %}
+                                    <span class="badge bg-info">
+                                        {{ student.department.code }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if student.dateOfBirth %}
+                                    {{ student.dateOfBirth|date('Y-m-d') }}
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('student_show', {id: student.id}) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="View details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('student_edit', {id: student.id}) }}" 
+                                       class="btn btn-sm btn-outline-warning" title="Edit student">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-muted text-center mt-3">
+        <small>Showing {{ students|length }} students</small>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+# Cấu hình chuẩn và đầy đủ để bắt buộc hỏi mã 2FA
+scheb_two_factor:
+    security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
+        - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+    
+    email:
+        enabled: true
+        sender_email: no-reply@student-management.com
+        sender_name: Student Management System
+        digits: 6

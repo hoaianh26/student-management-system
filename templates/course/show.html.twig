@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Course: {{ course.name }}{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="bi bi-book"></i> {{ course.name }}
+        <span class="badge bg-info">{{ course.code }}</span>
+    </h1>
+    <div class="btn-group">
+        <a href="{{ path('course_index') }}" class="btn btn-secondary">Back to List</a>
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('course_edit', {id: course.id}) }}" class="btn btn-warning">Edit</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light"><strong>Course Details</strong></div>
+            <div class="card-body">
+                <p><strong>Credits:</strong> {{ course.credits }}</p>
+                <p><strong>Department:</strong> 
+                    {% if course.department %}
+                        <a href="{{ path('department_show', {id: course.department.id}) }}">{{ course.department.name }}</a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light"><strong>Description</strong></div>
+            <div class="card-body">
+                <p>{{ course.description|default('No description provided.') }}</p>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Enrolled Students ({{ course.enrollments|length }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Enrolled Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in course.enrollments %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('student_show', {id: enrollment.student.id}) }}">
+                                    {{ enrollment.student.fullName }}
+                                </a>
+                            </td>
+                            <td>{{ enrollment.enrolledAt|date('Y-m-d') }}</td>
+                            <td>
+                                <span class="badge bg-{{ enrollment.status == 'active' ? 'primary' : (enrollment.status == 'completed' ? 'success' : 'secondary') }}">
+                                    {{ enrollment.status|capitalize }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No students enrolled yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

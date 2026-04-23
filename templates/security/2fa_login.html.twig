@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Xác thực 2 lớp{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0 fw-bold"><i class="bi bi-shield-lock-fill"></i> Xác thực tài khoản</h3>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">
+                            Một mã xác nhận <strong>6 chữ số</strong> đã được gửi đến email của bạn.
+                            Vui lòng nhập mã đó vào bên dưới để hoàn tất đăng nhập.
+                        </p>
+                    </div>
+
+                    {% if authenticationError %}
+                        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>Mã xác nhận không đúng hoặc đã hết hạn.</div>
+                        </div>
+                    {% endif %}
+
+                    <form action="{{ checkPathUrl }}" method="post">
+                        <div class="mb-4 text-center">
+                            <label for="_auth_code" class="form-label h6 mb-3">Mã xác nhận:</label>
+                            <input id="_auth_code" 
+                                   type="text" 
+                                   name="_auth_code" 
+                                   class="form-control form-control-lg text-center fw-bold border-2 border-primary" 
+                                   style="font-size: 2.5rem; letter-spacing: 8px; border-radius: 10px;"
+                                   placeholder="000000" 
+                                   maxlength="6"
+                                   inputmode="numeric" 
+                                   pattern="[0-9]*" 
+                                   required 
+                                   autofocus>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow-sm">
+                                <i class="bi bi-check-circle-fill me-2"></i> Xác nhận đăng nhập
+                            </button>
+                            <div class="text-center">
+                                <a href="{{ path('app_logout') }}" class="text-decoration-none text-secondary small">
+                                    <i class="bi bi-arrow-left"></i> Quay lại trang đăng nhập
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3 border-0">
+                    <small class="text-muted">Bạn không nhận được mã? Hãy kiểm tra thư rác (Spam) hoặc <a href="#" onclick="window.location.reload();">gửi lại mã</a>.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - Student Management System{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">Welcome to Dashboard</h1>
+            <p class="lead text-muted">Manage your institution's students, courses, and departments efficiently.</p>
+        </div>
+    </div>
+
+    {# Stats Cards #}
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Students</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.students }}</h2>
+                        </div>
+                        <i class="bi bi-people fs-1 opacity-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{{ path('student_index') }}" class="text-white text-decoration-none small">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Departments</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.departments }}</h2>
+                        </div>
+                        <i class="bi bi-building fs-1 opacity-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{{ path('department_index') }}" class="text-white text-decoration-none small">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 text-dark">Total Courses</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.courses }}</h2>
+                        </div>
+                        <i class="bi bi-book fs-1 opacity-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{{ path('course_index') }}" class="text-dark text-decoration-none small">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Enrollments</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.enrollments }}</h2>
+                        </div>
+                        <i class="bi bi-journal-check fs-1 opacity-50"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{{ path('enrollment_index') }}" class="text-white text-decoration-none small">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Recent Students Table #}
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Recently Joined Students</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Department</th>
+                                    <th>Joined At</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in recent_students %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-light p-2 me-3">
+                                                <i class="bi bi-person text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ student.fullName }}</div>
+                                                <small class="text-muted">{{ student.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            {{ student.department.name|default('N/A') }}
+                                        </span>
+                                    </td>
+                                    <td>{{ student.createdAt|date('M d, Y') }}</td>
+                                    <td>
+                                        <a href="{{ path('student_show', {id: student.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No students found yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="{{ path('student_index') }}" class="btn btn-link btn-sm text-decoration-none">
+                        See All Students <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# Quick Actions #}
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-body py-4">
+                    <h5 class="fw-bold mb-3">Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('student_new') }}" class="btn btn-primary text-start">
+                                <i class="bi bi-person-plus me-2"></i> Register New Student
+                            </a>
+                            <a href="{{ path('enrollment_new') }}" class="btn btn-success text-start">
+                                <i class="bi bi-plus-square me-2"></i> Create New Enrollment
+                            </a>
+                            <a href="{{ path('course_new') }}" class="btn btn-warning text-start">
+                                <i class="bi bi-book me-2"></i> Add New Course
+                            </a>
+                            <hr>
+                        {% endif %}
+                        <a href="{{ path('home_about') }}" class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-info-circle me-2"></i> About System
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4 border-0 bg-dark text-white">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-mortarboard-fill display-4 mb-3"></i>
+                    <h5>Academic Status</h5>
+                    <p class="small opacity-75">All systems are operational. Semester Spring 2026 is currently active.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

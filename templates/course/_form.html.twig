@@ -1,0 +1,25 @@
+{{ form_start(form) }}
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Enter course name'}}) }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form_row(form.code, {'attr': {'class': 'form-control', 'placeholder': 'CS101'}}) }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form_row(form.credits, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="col-md-12 mb-3">
+            {{ form_row(form.department, {'attr': {'class': 'form-select'}}) }}
+        </div>
+        <div class="col-12 mb-3">
+            {{ form_row(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+        </div>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="{{ path('course_index') }}" class="btn btn-secondary">Cancel</a>
+        <button class="btn btn-warning">
+            <i class="bi bi-check-circle"></i> {{ button_label|default('Save Changes') }}
+        </button>
+    </div>
+{{ form_end(form) }}
