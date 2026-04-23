@@ -25,6 +25,7 @@ security:
                 auth_form_path: 2fa_login
                 check_path: 2fa_login_check
                 default_target_path: home
+                always_use_default_target_path: true
 
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
