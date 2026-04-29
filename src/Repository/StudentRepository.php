@@ -16,8 +16,10 @@ class StudentRepository extends ServiceEntityRepository
         parent::__construct($registry, Student::class);
     }
 
-    // 🔍 Search by name and department
-    public function searchByCriteria(string $name = '', ?int $departmentId = null): array
+    /**
+     * @return \Doctrine\ORM\Query
+     */
+    public function searchByCriteriaQuery(string $name = '', ?int $departmentId = null): \Doctrine\ORM\Query
     {
         $qb = $this->createQueryBuilder('s')
             ->leftJoin('s.department', 'd')
@@ -34,8 +36,13 @@ class StudentRepository extends ServiceEntityRepository
         }
 
         return $qb->orderBy('s.lastName', 'ASC')
-                  ->getQuery()
-                  ->getResult();
+                  ->getQuery();
+    }
+
+    // 🔍 Search by name and department
+    public function searchByCriteria(string $name = '', ?int $departmentId = null): array
+    {
+        return $this->searchByCriteriaQuery($name, $departmentId)->getResult();
     }
 
     // 🏫 Find students by department (F2)

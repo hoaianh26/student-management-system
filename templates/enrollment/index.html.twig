@@ -140,5 +140,12 @@
             </div>
         </div>
     </div>
+    <div class="navigation d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(enrollments) }}
+    </div>
+
+    <div class="text-muted text-center mt-3">
+        <small>Total: {{ enrollments.getTotalItemCount }} enrollments</small>
+    </div>
 {% endif %}
 {% endblock %}

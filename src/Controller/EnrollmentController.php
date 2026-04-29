@@ -11,24 +11,36 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Knp\Component\Pager\PaginatorInterface;
+
 #[Route('/enrollments')]
 class EnrollmentController extends AbstractController
 {
     #[Route('/', name: 'enrollment_index', methods: ['GET'])]
-    public function index(Request $request, EnrollmentRepository $enrollmentRepository, \App\Repository\CourseRepository $courseRepository): Response
-    {
+    public function index(
+        Request $request, 
+        EnrollmentRepository $enrollmentRepository, 
+        \App\Repository\CourseRepository $courseRepository,
+        PaginatorInterface $paginator
+    ): Response {
         $studentName = $request->query->get('student');
         $courseId = $request->query->get('course');
         $status = $request->query->get('status');
         $sort = $request->query->get('sort', 'e.enrolledAt');
         $direction = $request->query->get('direction', 'DESC');
 
-        $enrollments = $enrollmentRepository->searchByCriteria(
+        $query = $enrollmentRepository->searchByCriteriaQuery(
             $studentName,
             $courseId ? (int) $courseId : null,
             $status,
             $sort,
             $direction
+        );
+
+        $enrollments = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
         );
 
         return $this->render('enrollment/index.html.twig', [

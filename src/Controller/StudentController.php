@@ -12,17 +12,29 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+use Knp\Component\Pager\PaginatorInterface;
+
 #[Route('/students')]
 class StudentController extends AbstractController
 {
     #[Route('/', name: 'student_index', methods: ['GET'])]
-    public function index(StudentRepository $studentRepository, \App\Repository\DepartmentRepository $departmentRepository, Request $request): Response
-    {
+    public function index(
+        StudentRepository $studentRepository, 
+        \App\Repository\DepartmentRepository $departmentRepository, 
+        Request $request,
+        PaginatorInterface $paginator
+    ): Response {
         $searchTerm = $request->query->get('q', '');
         $departmentId = $request->query->get('department');
         $departmentId = ($departmentId === '' || $departmentId === null) ? null : (int) $departmentId;
 
-        $students = $studentRepository->searchByCriteria($searchTerm, $departmentId);
+        $query = $studentRepository->searchByCriteriaQuery($searchTerm, $departmentId);
+        
+        $students = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10 // Items per page
+        );
 
         return $this->render('student/index.html.twig', [
             'students'    => $students,

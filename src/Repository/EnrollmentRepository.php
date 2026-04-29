@@ -29,7 +29,7 @@ class EnrollmentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function searchByCriteria(?string $studentName, ?int $courseId, ?string $status, string $sort = 'e.enrolledAt', string $direction = 'DESC'): array
+    public function searchByCriteriaQuery(?string $studentName, ?int $courseId, ?string $status, string $sort = 'e.enrolledAt', string $direction = 'DESC'): \Doctrine\ORM\Query
     {
         $qb = $this->createQueryBuilder('e')
             ->leftJoin('e.student', 's')
@@ -60,8 +60,12 @@ class EnrollmentRepository extends ServiceEntityRepository
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
 
         return $qb->orderBy($sort, $direction)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+    }
+
+    public function searchByCriteria(?string $studentName, ?int $courseId, ?string $status, string $sort = 'e.enrolledAt', string $direction = 'DESC'): array
+    {
+        return $this->searchByCriteriaQuery($studentName, $courseId, $status, $sort, $direction)->getResult();
     }
 
     // 📗 All enrollments for one course
