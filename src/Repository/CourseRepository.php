@@ -17,6 +17,16 @@ class CourseRepository extends ServiceEntityRepository
     }
 
     // 📚 Find courses by department
+    public function findAllWithDepartment(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.department', 'd')
+            ->addSelect('d')
+            ->orderBy('c.code', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findByDepartment(int $departmentId): array
     {
         return $this->createQueryBuilder('c')

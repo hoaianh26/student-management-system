@@ -19,7 +19,9 @@ class StudentRepository extends ServiceEntityRepository
     // 🔍 Search by name and department
     public function searchByCriteria(string $name = '', ?int $departmentId = null): array
     {
-        $qb = $this->createQueryBuilder('s');
+        $qb = $this->createQueryBuilder('s')
+            ->leftJoin('s.department', 'd')
+            ->addSelect('d');
 
         if ($name !== '') {
             $qb->andWhere('s.firstName LIKE :name OR s.lastName LIKE :name')
@@ -51,9 +53,10 @@ class StudentRepository extends ServiceEntityRepository
     public function findWithEnrollments(int $id): ?Student
     {
         return $this->createQueryBuilder('s')
+            ->leftJoin('s.department', 'd')
             ->leftJoin('s.enrollments', 'e')
             ->leftJoin('e.course', 'c')
-            ->addSelect('e', 'c')
+            ->addSelect('d', 'e', 'c')
             ->andWhere('s.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
