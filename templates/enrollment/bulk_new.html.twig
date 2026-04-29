@@ -40,21 +40,9 @@
                     <div class="card border-0 shadow-none bg-light">
                         <div class="card-body">
                             <h5 class="fw-bold mb-3"><i class="bi bi-person-check"></i> 2. Select Students</h5>
-                            
-                            <div class="student-selection-grid p-3 bg-white rounded border" style="max-height: 400px; overflow-y: auto;">
-                                <div class="row g-3">
-                                    {% for child in form.students %}
-                                        <div class="col-md-6 col-lg-4">
-                                            <div class="form-check p-2 rounded hover-bg-light border-bottom">
-                                                {{ form_widget(child, {'attr': {'class': 'form-check-input ms-0 me-2'}}) }}
-                                                {{ form_label(child, null, {'label_attr': {'class': 'form-check-label small'}}) }}
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                            {{ form_row(form.students) }}
                             <div class="mt-2 text-muted small">
-                                <i class="bi bi-search"></i> Tip: Use Ctrl+F to find a specific student name.
+                                <i class="bi bi-lightbulb"></i> Tip: You can type to search for students and select multiple names.
                             </div>
                         </div>
                     </div>
@@ -72,14 +60,28 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .hover-bg-light:hover {
-        background-color: #f8f9fa;
-    }
-    .student-selection-grid .form-check {
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-</style>
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof TomSelect !== 'undefined') {
+                new TomSelect('.tom-select', {
+                    plugins: ['remove_button'],
+                    maxOptions: null,
+                    create: false,
+                    placeholder: 'Search and select students...',
+                });
+            } else {
+                // Fallback to Select2 which seems to be already in base.html.twig
+                $('.tom-select').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Search and select students...',
+                    allowClear: true
+                });
+            }
+        });
+    </script>
 {% endblock %}

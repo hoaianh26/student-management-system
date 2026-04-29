@@ -41,9 +41,13 @@ class BulkEnrollmentType extends AbstractType
                         ->orderBy('s.firstName', 'ASC');
                 },
                 'multiple' => true,
-                'expanded' => true, // This renders as checkboxes
+                'expanded' => false, // Changed from true to false
                 'constraints' => [
                     new Count(['min' => 1, 'minMessage' => 'Please select at least one student.']),
+                ],
+                'attr' => [
+                    'class' => 'form-select select2', // Use select2 as it's already in base.html.twig
+                    'data-placeholder' => 'Search and select students...',
                 ],
             ]);
     }
