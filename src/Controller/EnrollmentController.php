@@ -79,19 +79,20 @@ class EnrollmentController extends AbstractController
             $students = $data['students'];
             $count = 0;
 
-            foreach ($students as $student) {
-                // Check if already enrolled to avoid duplicates
-                $existing = $entityManager->getRepository(Enrollment::class)->findOneBy([
-                    'student' => $student,
-                    'course' => $course
-                ]);
+            // Get IDs of students already enrolled in this course to avoid N+1 queries in the loop
+            $existingEnrollments = $entityManager->getRepository(Enrollment::class)->findBy(['course' => $course]);
+            $existingStudentIds = array_map(fn($e) => $e->getStudent()->getId(), $existingEnrollments);
 
-                if (!$existing) {
+            foreach ($students as $student) {
+                if (!in_array($student->getId(), $existingStudentIds)) {
                     $enrollment = new Enrollment();
                     $enrollment->setCourse($course);
                     $enrollment->setStudent($student);
                     $entityManager->persist($enrollment);
                     $count++;
+                    
+                    // Add to existing list to handle duplicates within the same submission if any
+                    $existingStudentIds[] = $student->getId();
                 }
             }
 
