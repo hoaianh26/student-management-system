@@ -114,7 +114,7 @@
 
     <script>
         // Use a more robust initialization
-        $(document).ready(function() {
+        document.addEventListener('turbo:load', function() {
             function initSelect2() {
                 $('.select2').each(function() {
                     $(this).select2({
@@ -127,11 +127,11 @@
             }
             
             initSelect2();
+        });
             
-            // Re-init when any dynamic content might be added (optional but good practice)
-            $(document).on('select2:open', () => {
-                document.querySelector('.select2-search__field').focus();
-            });
+        // Re-init when any dynamic content might be added (optional but good practice)
+        $(document).on('select2:open', () => {
+            document.querySelector('.select2-search__field').focus();
         });
     </script>
     

@@ -4,7 +4,7 @@ import './bootstrap.js';
 console.log('Student Management System loaded');
 
 // Form validation enhancement
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
     
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');

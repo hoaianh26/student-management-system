@@ -15,17 +15,17 @@
 {# Search and Filter Form #}
 <div class="card shadow-sm mb-4 border-0 bg-light">
     <div class="card-body">
-        <form method="get" action="{{ path('student_index') }}" class="row g-3">
+        <form method="get" action="{{ path('student_index') }}" class="row g-3" id="search-form">
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" name="q" class="form-control border-start-0" placeholder="Search by name..." value="{{ search_term }}">
+                    <input type="text" name="q" id="search-q" class="form-control border-start-0" placeholder="Search by name (Instant Search)..." value="{{ search_term }}">
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-building"></i></span>
-                    <select name="department" class="form-select border-start-0">
+                    <select name="department" id="search-dept" class="form-select border-start-0">
                         <option value="">All Departments</option>
                         {% for dept in departments %}
                             <option value="{{ dept.id }}" {% if current_department == dept.id %}selected{% endif %}>
@@ -49,15 +49,21 @@
     </div>
 </div>
 
+<div id="loading-spinner" class="text-center d-none my-3">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
 {% if students is empty %}
-    <div class="alert alert-info">
+    <div class="alert alert-info" id="no-results-msg">
         <i class="bi bi-info-circle"></i> No students found matching your criteria.
     </div>
 {% else %}
-    <div class="card shadow-sm">
+    <div class="card shadow-sm" id="student-list-card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle" id="student-table">
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
@@ -68,7 +74,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="student-tbody">
                         {% for student in students %}
                         <tr>
                             <td><span class="badge bg-secondary">{{ student.id }}</span></td>
@@ -118,12 +124,98 @@
         </div>
     </div>
 
-    <div class="navigation d-flex justify-content-center mt-4">
+    <div class="navigation d-flex justify-content-center mt-4" id="pagination-nav">
         {{ knp_pagination_render(students) }}
     </div>
 
-    <div class="text-muted text-center mt-3">
+    <div class="text-muted text-center mt-3" id="pagination-info">
         <small>Showing {{ students.getItemNumberPerPage }} items per page | Total: {{ students.getTotalItemCount }} students</small>
     </div>
 {% endif %}
 {% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search-q');
+    const tbody = document.getElementById('student-tbody');
+    const spinner = document.getElementById('loading-spinner');
+    const paginationNav = document.getElementById('pagination-nav');
+    const paginationInfo = document.getElementById('pagination-info');
+    const card = document.getElementById('student-list-card');
+    const noResults = document.getElementById('no-results-msg');
+
+    let debounceTimer;
+
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const query = e.target.value;
+
+        if (query.length < 2 && query.length > 0) return;
+
+        debounceTimer = setTimeout(() => {
+            fetchResults(query);
+        }, 300);
+    });
+
+    async function fetchResults(q) {
+        spinner.classList.remove('d-none');
+        try {
+            const response = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`);
+            const data = await response.json();
+            renderTable(data);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        } finally {
+            spinner.classList.add('d-none');
+        }
+    }
+
+    function renderTable(students) {
+        if (students.length === 0) {
+            if (card) card.classList.add('d-none');
+            if (paginationNav) paginationNav.classList.add('d-none');
+            if (paginationInfo) paginationInfo.classList.add('d-none');
+            
+            if (!noResults) {
+                const alert = document.createElement('div');
+                alert.id = 'no-results-msg';
+                alert.className = 'alert alert-info';
+                alert.innerHTML = '<i class="bi bi-info-circle"></i> No students found matching your criteria.';
+                spinner.after(alert);
+            } else {
+                noResults.classList.remove('d-none');
+            }
+            return;
+        }
+
+        if (noResults) noResults.classList.add('d-none');
+        if (card) card.classList.remove('d-none');
+        if (paginationNav) paginationNav.classList.add('d-none'); // Hide pagination on search
+        if (paginationInfo) paginationInfo.classList.add('d-none');
+
+        tbody.innerHTML = '';
+        students.forEach(student => {
+            const row = `
+                <tr>
+                    <td><span class="badge bg-secondary">${student.id}</span></td>
+                    <td><strong>${student.firstName} ${student.lastName}</strong></td>
+                    <td><a href="mailto:${student.email}" class="text-decoration-none"><i class="bi bi-envelope"></i> ${student.email}</a></td>
+                    <td><span class="badge bg-info">${student.departmentCode}</span></td>
+                    <td>${student.dateOfBirth}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="${student.showUrl}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            ${student.editUrl ? `<a href="${student.editUrl}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+});
+</script>
+{% endblock %}
+
